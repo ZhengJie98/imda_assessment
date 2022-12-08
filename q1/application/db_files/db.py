@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 
-conn = sqlite3.connect("ramen-ratings.db")
+conn = sqlite3.connect("ramen-ratings.sqlite")
 
 c = conn.cursor()
 
