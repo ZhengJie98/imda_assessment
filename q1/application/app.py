@@ -44,26 +44,26 @@ def createReview():
         package = content['Package']
         rating = content['Rating']
 
-  
-        # id = request.form['ID']
-        # country = request.form['Country']
-        # brand = request.form['Brand']
-        # type = request.form['Type']
-        # package = request.form['Package']
-        # rating = request.form['Rating']
-
-
         if isinstance(rating, (int, float)) != True:
             print(isinstance(rating, (int, float)))
             print("rating: ", rating)
             return "Rating has to be number"
 
         conn = db_connection()
+
+        cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
+        # cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id=?',(2601,))
+        rows = cursor.fetchall()
+        print("Retrieved Rows on search criteria:", rows)
+        if len(rows) > 1:
+            return jsonify({"result" : "Error", "content":"Duplicated rows exist, please check db / contact support"})
+
+        ## CREATE REVIEW IF NO ERRORS
         conn.execute('INSERT INTO RAMEN_RATINGS (id, country, brand, type, package, rating) VALUES (?, ?, ?, ?, ?, ?)',
                         (id, country, brand, type, package, rating))
         conn.commit()
         conn.close()
-        return jsonify({"result" : "Success", "content":"new ramen is added"})
+        return jsonify({"result" : "Success", "content":"new review is added"})
 
 @app.post('/modifyReview')
 def modifyReview():
@@ -83,16 +83,19 @@ def modifyReview():
         rating = content['Rating']
 
 
-        # if isinstance(rating, (int, float)) != True:
-        #     print(isinstance(rating, (int, float)))
-        #     print("rating: ", rating)
-        #     return "Rating has to be number"
+        print("given id:", id)
+        print("country:", country)
+        print(brand)
+        print("type:", type)
+        print(package)
+        print("rating:", rating)
 
         conn = db_connection()
 
         cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
+        # cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id=?',(2601,))
         rows = cursor.fetchall()
-        print("Rows:", rows)
+        print("Retrieved Rows on search criteria:", rows)
         if len(rows) == 0:
             return jsonify({"result" : "Error", "content":"no rows exist"})
         elif len(rows) > 1:
@@ -116,18 +119,99 @@ def modifyReview():
         ## update row if no errors found
         print("old_id:", id)
         print("new_id:", new_id)
-        conn = db_connection()
+        # conn = db_connection()
         cursor = conn.cursor()
-        cursor.execute('''UPDATE RAMEN_RATINGS SET id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?
+        cursor.execute('''UPDATE RAMEN_RATINGS SET id = ?, country = ?, brand = ?, type = ?, package = ?, rating = ?
                           WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?''',
                          (new_id, new_country, new_brand, new_type, new_package, new_rating, id, country, brand, type, package, rating))
+        # cursor.execute('''UPDATE RAMEN_RATINGS SET id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?
+        #                   WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?''',
+        #                  (new_id, new_country, new_brand, new_type, new_package, new_rating, id, country, brand, type, package, rating))                 
         conn.commit()
         conn.close()
 
 
-        # conn.commit()
-        # conn.close()
         return jsonify({"result" : "Success", "content":"ramen updated successfully"})
+
+@app.post('/deleteReview')
+def deleteReview():
+
+ if request.method == 'POST':
+
+        content = request.get_json()
+
+        id = content['ID']
+        country = content['Country']
+        brand = content['Brand']
+        type = content['Type']
+        package = content['Package']
+        rating = content['Rating']
+
+
+        conn = db_connection()
+
+        cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
+        # cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id=?',(2601,))
+        rows = cursor.fetchall()
+        print("Retrieved Rows on search criteria:", rows)
+        if len(rows) == 0:
+            return jsonify({"result" : "Error", "content":"no rows exist"})
+        elif len(rows) > 1:
+            return jsonify({"result" : "Error", "content":"Duplicated rows exist, please check db / contact support"})
+
+
+        ## DELETE IF NO ERRORS FOUND
+        cursor = conn.execute('DELETE FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
+        conn.commit()
+        conn.close()
+
+
+        return jsonify({"result" : "Success", "content":"review deleted successfully"})
+
+@app.post('/countryReview')
+def countryReview():
+
+ if request.method == 'POST':
+
+        content = request.get_json()
+        country = content['Country']
+
+
+
+        conn = db_connection()
+
+        cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE country = ?',(country,))
+        rows = cursor.fetchall()
+        print("Retrieved Rows on search criteria:", rows)
+        if len(rows) == 0:
+            return jsonify({"result" : "Success", "content":"no rows exist for specified country"})
+        elif len(rows) > 0:
+            # print(rows)
+            return jsonify({"result" : "Success", "content":rows})
+
+@app.post('/typeReview')
+def typeReview():
+
+ if request.method == 'POST':
+
+        content = request.get_json()
+        type = content['Type']
+
+
+
+        conn = db_connection()
+
+        cursor = conn.execute('''SELECT * FROM RAMEN_RATINGS  WHERE type LIKE ?''',('%'+type+'%',))
+
+        rows = cursor.fetchall()
+        print("Retrieved Rows on search criteria:", rows)
+        if len(rows) == 0:
+            return jsonify({"result" : "Success", "content":"no rows exist for specified type"})
+        elif len(rows) > 0:
+            # print(rows)
+            return jsonify({"result" : "Success", "content":rows})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
