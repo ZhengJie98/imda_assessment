@@ -95,7 +95,8 @@ def get_machine_on_time(starting_time):
     min = sec // 60
     sec %= 60
     
-    print( "%02d:%02d:%02d (HH:MM:SS)" % (hour, min, sec) )
+    # print( "%02d:%02d:%02d (HH:MM:SS)" % (hour, min, sec) )
+    return  "%02d:%02d:%02d (HH:MM:SS)" % (hour, min, sec)
 
 
 start_time = time.time()
@@ -118,8 +119,8 @@ while True:
     
     elif(choice_get_protocol == 2):
         ## check if user chosen washing type
-        print("washing type:", washing_type)
-        print(type(washing_type))
+        # print("washing type:", washing_type)
+        # print(type(washing_type))
         if (washing_type not in [0,1,2,3]):
             print(washing_type)
 
@@ -132,7 +133,7 @@ while True:
 
                 ## Insufficient balance
                 if (wallet < required_amount):
-                    print('inssuficient wallet balance: $' + str(wallet) + "\nRequired amount: $" + str(required_amount))
+                    print('insufficient wallet balance: $' + str(wallet) + "\nRequired amount: $" + str(required_amount))
                 else:
                     ## Check Door Lock
                     while (is_locked != 1):
@@ -141,8 +142,7 @@ while True:
                         if (user_input == "1"):
                             is_locked = 1
                             break
-                        # else:
-                        #     is_locked = int(input())
+
 
                     ## Deduct Money and Start Washing
                     remaining_amount = wallet - required_amount
@@ -155,8 +155,8 @@ while True:
 
                     required_time = washing_pricetime_dict[choice_washing_type][1]
                     print("++++++++++ Starting Wash Cycle ++++++++++")
-                    # progress_bar(required_time*60)
-                    progress_bar(required_time)
+                    # progress_bar(required_time*60)  ## Actual Time (Mins)
+                    progress_bar(required_time)  ## Time in Seconds
                     while (is_locked != 0):
                         print("door is locked, please press 0 to lock door")
                         user_input = input()
@@ -175,14 +175,10 @@ while True:
 
         if (choice_maintenance_info == 0):
             get_machine_on_time(start_time)
-            print("Machine has earned $", machine_earnings)
-            # print("Machine has been on for ", machine_on_time, "and has earned $", machine_earnings)
+            print("Machine has been on for", get_machine_on_time(start_time), "and has earned $", machine_earnings)
 
        
         elif (choice_maintenance_info == 1):
             start_time = time.time()
             machine_earnings = 0
             print("++++++++++ Machine Statistics Cleared ++++++++++")
-
-
-    # print(get_protocol_call)

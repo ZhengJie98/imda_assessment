@@ -8,7 +8,7 @@ def db_connection():
     conn = None
     try:
         conn = sqlite3.connect("db_files/ramen-ratings.sqlite")
-        print(conn)
+        # print(conn)
     except sqlite3.error as e:
         print(e)
         print("db conn error")
@@ -35,7 +35,7 @@ def createReview():
     if request.method == 'POST':
 
         content = request.get_json()
-        print(content)
+        # print(content)
 
         id = content['ID']
         country = content['Country']
@@ -45,8 +45,8 @@ def createReview():
         rating = content['Rating']
 
         if isinstance(rating, (int, float)) != True:
-            print(isinstance(rating, (int, float)))
-            print("rating: ", rating)
+            # print(isinstance(rating, (int, float)))
+            # print("rating: ", rating)
             return "Rating has to be number"
 
         conn = db_connection()
@@ -84,12 +84,12 @@ def modifyReview():
         rating = content['Rating']
 
 
-        print("given id:", id)
-        print("country:", country)
-        print(brand)
-        print("type:", type)
-        print(package)
-        print("rating:", rating)
+        # print("given id:", id)
+        # print("country:", country)
+        # print(brand)
+        # print("type:", type)
+        # print(package)
+        # print("rating:", rating)
 
         conn = db_connection()
 
@@ -118,8 +118,8 @@ def modifyReview():
 
         
         ## update row if no errors found
-        print("old_id:", id)
-        print("new_id:", new_id)
+        # print("old_id:", id)
+        # print("new_id:", new_id)
         # conn = db_connection()
         cursor = conn.cursor()
         cursor.execute('''UPDATE RAMEN_RATINGS SET id = ?, country = ?, brand = ?, type = ?, package = ?, rating = ?
@@ -149,12 +149,29 @@ def deleteReview():
         package = content['Package']
         rating = content['Rating']
 
+        tuple_content = (id,country,brand,type,package,rating)
+        tuple_headers = ("id","country","brand","type","package","rating")
 
         conn = db_connection()
 
-        cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
-        # cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id=?',(2601,))
+        # cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE id = ? and country = ? and brand = ? and type = ? and package = ? and rating = ?',(id, country, brand, type, package, rating))
+ 
+        sql_statement = 'SELECT * FROM RAMEN_RATINGS WHERE '
+        for i in range(len(tuple_content)):
+            if (tuple_content[i] == None):
+                sql_statement += tuple_headers[i] + " IS NULL "
+            
+            else:
+                sql_statement += tuple_headers[i] + "='" + str(tuple_content[i]) + "' "
+
+            if (i+1 != len(tuple_content)):
+                sql_statement += " and "
+        # print("final sql statement:", sql_statement)
+
+        cursor = conn.execute(sql_statement)
+
         rows = cursor.fetchall()
+
         print("Retrieved Rows on search criteria:", rows)
         if len(rows) == 0:
             return jsonify({"result" : "Error", "content":"no rows exist"})
@@ -183,7 +200,13 @@ def countryReview():
 
         conn = db_connection()
 
-        cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE country = ?',(country,))
+
+        if (country == None):
+            cursor = conn.execute('Select * FROM RAMEN_RATINGS WHERE COUNTRY IS NULL')
+        else:
+            cursor = conn.execute('SELECT * FROM RAMEN_RATINGS WHERE country = ?',(country,))
+
+
         rows = cursor.fetchall()
         print("Retrieved Rows on search criteria:", rows)
         if len(rows) == 0:
