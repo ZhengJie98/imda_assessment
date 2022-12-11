@@ -78,9 +78,10 @@ def progress_bar(time_taken):
 
 
 start_time = time.time()
+machine_earnings = 0
 wallet = 5
 is_locked = 0
-washing_price_dict = {0:2,1:2.5,2:4.2,3:6}
+washing_pricetime_dict = {0:[2,10],1:[2.5,30],2:[4.2,45],3:[6,60]}
 
 washing_type = "\n+++++++++++ Washing type unchosen, please choose in [1] +++++++++++\n"
   
@@ -104,7 +105,7 @@ while True:
         else:
             choice_confirm_washing = confirm_washing()
             if (choice_confirm_washing==0):
-                required_amount = washing_price_dict[choice_washing_type]
+                required_amount = washing_pricetime_dict[choice_washing_type][0]
 
 
 
@@ -115,15 +116,33 @@ while True:
                     ## Check Door Lock
                     while (is_locked != 1):
                         print("door is not locked, please press 1 to lock door")
-                        is_locked = int(input())
+                        user_input = input()
+                        if (user_input == "1"):
+                            is_locked = 1
+                            break
+                        # else:
+                        #     is_locked = int(input())
 
                     ## Deduct Money and Start Washing
                     remaining_amount = wallet - required_amount
+                    machine_earnings += required_amount
                     if (remaining_amount == 0):
                         print("Balance $" + str(remaining_amount) + " no excess")
                     else:
                         print("Balance of $" + str(remaining_amount) + " will be returned")
                     wallet = 0
+
+                    required_time = washing_pricetime_dict[choice_washing_type][1]
+                    print("++++++++++ Starting Wash Cycle ++++++++++")
+                    # progress_bar(required_time*60)
+                    progress_bar(required_time)
+                    while (is_locked != 0):
+                        print("door is locked, please press 0 to lock door")
+                        user_input = input()
+                        if (user_input == "0"):
+                            is_locked = 0
+                            break
+                    print("++++++++++ Collect your fresh Laundry ++++++++++")
             
             ## Cancel Wash and Refund Option
             elif (choice_confirm_washing==1):
