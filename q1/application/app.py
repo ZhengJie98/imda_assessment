@@ -65,6 +65,7 @@ def createReview():
         conn.close()
         return jsonify({"result" : "Success", "content":"new review is added"})
 
+## Modify Ramen Review
 @app.post('/modifyReview')
 def modifyReview():
 
@@ -133,6 +134,7 @@ def modifyReview():
 
         return jsonify({"result" : "Success", "content":"ramen updated successfully"})
 
+## Delete Ramen Review
 @app.post('/deleteReview')
 def deleteReview():
 
@@ -168,6 +170,7 @@ def deleteReview():
 
         return jsonify({"result" : "Success", "content":"review deleted successfully"})
 
+## Extract Review By Country
 @app.post('/countryReview')
 def countryReview():
 
@@ -189,6 +192,7 @@ def countryReview():
             # print(rows)
             return jsonify({"result" : "Success", "content":rows})
 
+## Extract Review By Type
 @app.post('/typeReview')
 def typeReview():
 
