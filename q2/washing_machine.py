@@ -53,6 +53,16 @@ def confirm_washing():
     option = input("    Enter option: ")
     return int(option)
 
+def confirm_maintenance_info():
+    confirm_maintenance_info = '''\n++++++++++++++++++++++++++++++++++++++++
+    Please Select:
+      [0] Display balance and duration turned on
+      [1] Reset Machine Statistics
+    '''
+    print(confirm_maintenance_info)
+    option = input("    Enter option: ")
+    return int(option)
+
 def wallet_sum(wallet,input):
     # print("input: ", input)
     # print(type(input))
@@ -75,6 +85,17 @@ def wallet_sum(wallet,input):
 def progress_bar(time_taken):
     for i in tqdm(range(time_taken)): ## 10/30/45/60 
         sleep(1) ## update per minute
+
+def get_machine_on_time(starting_time):
+    curr_time = time.time()
+    sec = curr_time - starting_time
+    sec = sec % (24 * 3600)
+    hour = sec // 3600
+    sec %= 3600
+    min = sec // 60
+    sec %= 60
+    
+    print( "%02d:%02d:%02d (HH:MM:SS)" % (hour, min, sec) )
 
 
 start_time = time.time()
@@ -149,6 +170,19 @@ while True:
                 print("Wash cancelled, balance of $" + str(wallet) + " will be returned")
                 wallet = 0
 
-    # if(get_protocol() == 3):
+    elif(choice_get_protocol == 3):
+        choice_maintenance_info = confirm_maintenance_info()
+
+        if (choice_maintenance_info == 0):
+            get_machine_on_time(start_time)
+            print("Machine has earned $", machine_earnings)
+            # print("Machine has been on for ", machine_on_time, "and has earned $", machine_earnings)
+
+       
+        elif (choice_maintenance_info == 1):
+            start_time = time.time()
+            machine_earnings = 0
+            print("++++++++++ Machine Statistics Cleared ++++++++++")
+
 
     # print(get_protocol_call)
