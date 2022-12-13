@@ -1,6 +1,7 @@
 import time
 from time import sleep
 from tqdm import tqdm
+from washing_class import *
 
 def get_protocol():
     protocol_info = '''\n++++++++++++++++++++++++++++++++++++++++
@@ -27,7 +28,6 @@ def choose_insert_coins():
     option = input("    Enter option: ")
     return int(option)
 
-
 def choose_washing_type():
     washing_types_info = '''\n++++++++++++++++++++++++++++++++++++++++
     Washing Types:
@@ -39,8 +39,10 @@ def choose_washing_type():
     print(washing_types_info)
     option = input("    Enter option: ")
     globals()['washing_type'] = int(option)
-    washing_types_info_array = ['[0] Quick Wash (10 minutes - $2)','[1] Mild Wash (30 minutes - $2.50)','[2] Medium Wash (45 minutes - $4.20)','[3] Heavy Wash (1 hour - $6)']
-    print("Washing Type of:", washing_types_info_array[int(option)], "was chosen")
+    # washing_types_info_array = ['[0] Quick Wash (10 minutes - $2)','[1] Mild Wash (30 minutes - $2.50)','[2] Medium Wash (45 minutes - $4.20)','[3] Heavy Wash (1 hour - $6)']
+    # print("Washing Type of:", washing_types_info_array[int(option)], "was chosen")
+    print("Washing Type of:", washing_list[int(option)].get_name(), "was chosen")
+
     return int(option)
 
 def confirm_washing():
@@ -101,11 +103,12 @@ def get_machine_on_time(starting_time):
 
 start_time = time.time()
 machine_earnings = 0
-wallet = 5
+wallet = 0
 is_locked = 0
-washing_pricetime_dict = {0:[2,10],1:[2.5,30],2:[4.2,45],3:[6,60]}
+# washing_pricetime_dict = {0:[2,10],1:[2.5,30],2:[4.2,45],3:[6,60]}
 
 washing_type = "\n+++++++++++ Washing type unchosen, please choose in [1] +++++++++++\n"
+
   
 while True:
 
@@ -127,7 +130,8 @@ while True:
         else:
             choice_confirm_washing = confirm_washing()
             if (choice_confirm_washing==0):
-                required_amount = washing_pricetime_dict[choice_washing_type][0]
+                # required_amount = washing_pricetime_dict[choice_washing_type][0]
+                required_amount = washing_list[choice_washing_type].get_cost()
 
 
 
@@ -145,7 +149,7 @@ while True:
 
 
                     ## Deduct Money and Start Washing
-                    remaining_amount = wallet - required_amount
+                    remaining_amount = round(wallet - required_amount,2)
                     machine_earnings += required_amount
                     if (remaining_amount == 0):
                         print("Balance $" + str(remaining_amount) + " no excess")
@@ -153,12 +157,14 @@ while True:
                         print("Balance of $" + str(remaining_amount) + " will be returned")
                     wallet = 0
 
-                    required_time = washing_pricetime_dict[choice_washing_type][1]
+                    # required_time = washing_pricetime_dict[choice_washing_type][1]
+                    required_time = washing_list[choice_washing_type].get_time()
+
                     print("++++++++++ Starting Wash Cycle ++++++++++")
                     # progress_bar(required_time*60)  ## Actual Time (Mins)
                     progress_bar(required_time)  ## Time in Seconds
                     while (is_locked != 0):
-                        print("door is locked, please press 0 to lock door")
+                        print("door is locked, please press 0 to unlock door")
                         user_input = input()
                         if (user_input == "0"):
                             is_locked = 0
@@ -169,6 +175,9 @@ while True:
             elif (choice_confirm_washing==1):
                 print("Wash cancelled, balance of $" + str(wallet) + " will be returned")
                 wallet = 0
+                
+            washing_type = "\n+++++++++++ Washing type unchosen, please choose in [1] +++++++++++\n"
+
 
     elif(choice_get_protocol == 3):
         choice_maintenance_info = confirm_maintenance_info()
